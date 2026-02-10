@@ -16,7 +16,7 @@ pipeline {
             steps {
                 // git branch: 'master', url: 'https://github.com/AmanPathak-DevOps/End-to-End-Kubernetes-DevSecOps-Tetris-Project.git'
                 git branch: 'main', url: 'https://github.com/jithinkp11p/Dev-Sec-Ops.git'
-              
+            } 
         }
         stage('Sonarqube Analysis') {
             steps {
