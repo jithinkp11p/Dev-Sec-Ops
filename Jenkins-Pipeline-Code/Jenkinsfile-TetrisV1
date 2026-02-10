@@ -82,6 +82,10 @@ pipeline {
         }
         stage("TRIVY Image Scan") {
             steps {
+                sh '''
+                   docker system prune -af
+                   docker volume prune -f
+                '''
                 sh 'trivy image jkp11/tetrisv1:${BUILD_NUMBER} > trivyimage.txt'
             }
         }
@@ -108,7 +112,7 @@ pipeline {
                             sed -i "s/tetrisv1:${imageTag}/tetrisv1:${BUILD_NUMBER}/" deployment-service.yml
                             git add deployment-service.yml
                             git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
-                            git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:master
+                            git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
                         '''
                     }
                 }
