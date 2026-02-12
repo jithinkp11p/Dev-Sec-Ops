@@ -109,12 +109,29 @@ pipeline {
                             echo $BUILD_NUMBER
                             imageTag=$(grep -oP '(?<=tetrisv1:)[^ ]+' deployment-service.yml)
                             echo $imageTag
-                            sed -i "s/tetrisv1:${imageTag}/tetrisv1:${BUILD_NUMBER}/" deployment-service.yml
+                    
+                            sed -i "s|\(image:.*tetrisv1:\).*|\1${BUILD_NUMBER}|" deployment-service.yml
                             git add deployment-service.yml
                             git commit -m "Update deployment Image to version \${BUILD_NUMBER}"
                             git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
                         '''
                     }
+                }
+            }
+
+        }
+
+
+    stages {
+        stage('Deploy to K8s') {
+            steps {
+                withCredentials([file(credentialsId: 'kubeconfig-prod', variable: 'KUBECONFIG')]) {
+                    sh '''
+                    export KUBECONFIG=$KUBECONFIG
+                    kubectl get nodes
+                    kubectl apply -f Manifest/deployment.yaml
+                    kubectl apply -f Manifest/ingress.yaml
+                    '''
                 }
             }
         }
